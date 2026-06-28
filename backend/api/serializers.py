@@ -6,7 +6,8 @@ from .models import (
     Espacio,
     NodoAcceso,
     Permiso,
-    Acceso
+    Acceso,
+    EventoMQTT
 )
 
 
@@ -17,6 +18,11 @@ class PersonaSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "contraseña": {"write_only": True}
         }
+
+    def create(self, validated_data):
+        persona = Persona(**validated_data)
+        persona.save()
+        return persona
 
 
 class TarjetaNFCSerializer(serializers.ModelSerializer):
@@ -53,3 +59,29 @@ class AccesoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Acceso
         fields = "__all__"
+
+
+class EventoMQTTSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventoMQTT
+        fields = "__all__"
+
+
+class ComandoPuertaSerializer(serializers.Serializer):
+    accion = serializers.ChoiceField(choices=["ABRIR", "CERRAR"])
+    request_id = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        accion = attrs["accion"]
+        if accion not in ["ABRIR", "CERRAR"]:
+            raise serializers.ValidationError("Acción inválida.")
+        return attrs
+    
+
+class EventoTarjetaSerializer(serializers.Serializer):
+    persona_id = serializers.IntegerField()
+    tarjeta_id = serializers.IntegerField()
+    dni = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    usuario = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    numero_tarjeta = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    request_id = serializers.CharField(required=False, allow_blank=True)

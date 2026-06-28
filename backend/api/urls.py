@@ -1,7 +1,8 @@
 from django.urls import include, path
-from api import views
+#from api import views
 
 from rest_framework.routers import DefaultRouter
+
 from .views import (
     PersonaViewSet,
     TarjetaNFCViewSet,
@@ -9,7 +10,8 @@ from .views import (
     EspacioViewSet,
     NodoAccesoViewSet,
     PermisoViewSet,
-    AccesoViewSet
+    AccesoViewSet,
+    EventoMQTTViewSet,
 )
 
 router = DefaultRouter()
@@ -21,5 +23,9 @@ router.register(r'espacios', EspacioViewSet)
 router.register(r'nodos', NodoAccesoViewSet)
 router.register(r'permisos', PermisoViewSet)
 router.register(r'accesos', AccesoViewSet)
+router.register(r"eventos-mqtt", EventoMQTTViewSet)
 
-urlpatterns = router.urls
+#urlpatterns = router.urls
+urlpatterns = [
+    path("", include(router.urls)),
+]

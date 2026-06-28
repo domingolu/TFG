@@ -95,6 +95,38 @@ DATABASES = {
     }
 }
 """
+# Configuracion para MQTT
+
+MQTT_HOST = "localhost"
+MQTT_PORT = 1883
+MQTT_USERNAME = ""
+MQTT_PASSWORD = ""
+MQTT_CLIENT_ID = "django-api-bridge"
+MQTT_TOPIC_BASE = "nodos"
+
+#OTRAs CONFIG MQTT SUGERIDAs
+"""
+MQTT_BROKER = "localhost"
+MQTT_PORT = 1883
+
+MQTT_TOPICS = [
+    ("acceso/eventos", 0),
+    ("acceso/nodos/estado", 0),
+]
+"""
+"""
+MQTT_HOST = env("MQTT_HOST", default="localhost")
+MQTT_PORT = env.int("MQTT_PORT", default=1883)
+MQTT_USERNAME = env("MQTT_USERNAME", default="")
+MQTT_PASSWORD = env("MQTT_PASSWORD", default="")
+MQTT_CLIENT_ID = env("MQTT_CLIENT_ID", default="django-bridge")
+MQTT_TOPIC_STATE = "nodos/+/estado"
+MQTT_TOPIC_TELEMETRIA = "nodos/+/telemetria"
+MQTT_TOPIC_ACK = "nodos/+/ack"
+"""
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
