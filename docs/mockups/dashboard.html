@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control en Tiempo Real - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            min-height: 100vh;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .dashboard-header h1 {
+            font-weight: 600;
+            margin: 0;
+        }
+        .dashboard-header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-card h6 {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .stats-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .pabellon-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .pabellon-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .aula-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .aula-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .aula-card.libre {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #f8f9fa 100%);
+        }
+        .aula-card.ocupado {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff8f9 0%, #f8f9fa 100%);
+        }
+        .aula-card.offline {
+            border-left-color: #6c757d;
+            background: linear-gradient(135deg, #f8f8f9 0%, #f8f9fa 100%);
+        }
+        .aula-card.alerta {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fffef8 0%, #f8f9fa 100%);
+        }
+        .aula-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .aula-nombre {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .aula-estado {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .estado-libre {
+            background: #28a745;
+            color: white;
+        }
+        .estado-ocupado {
+            background: #dc3545;
+            color: white;
+        }
+        .estado-offline {
+            background: #6c757d;
+            color: white;
+        }
+        .estado-alerta {
+            background: #ffc107;
+            color: #333;
+        }
+        .aula-info {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+        .aula-info i {
+            margin-right: 5px;
+        }
+        .alerta-security {
+            background: linear-gradient(135deg, #fff8f8 0%, #fff 100%);
+            border: 2px solid #dc3545;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        }
+        .alerta-security i {
+            color: #dc3545;
+            font-size: 24px;
+        }
+        .alerta-content h5 {
+            color: #dc3545;
+            font-size: 16px;
+            margin: 0;
+            font-weight: 600;
+        }
+        .alerta-content p {
+            color: #666;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+        .last-update {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+        }
+        .last-update i {
+            color: #667eea;
+            margin-right: 5px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .mapa-interactivo {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .mapa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .mapa-header h5 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .legend-libre { background: #28a745; }
+        .legend-ocupado { background: #dc3545; }
+        .legend-offline { background: #6c757d; }
+        .legend-alerta { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-speedometer2"></i> Tablero de Control en Tiempo Real</h1>
+                    <div class="subtitle">UC-06: Visualizar Estado de Recursos - Monitorización de Aulas y Oficinas</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="user-info">
+                        <div class="user-avatar">AD</div>
+                        <div>
+                            <strong>Administrador</strong>
+                            <div style="font-size: 12px; opacity: 0.8;">Servicios Generales</div>
+                        </div>
+                        <button class="btn btn-outline-light btn-sm ms-3">
+                            <i class="bi bi-box-arrow-right"></i> Salida
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Alertas de Seguridad -->
+        <div id="alertasSecurity" class="alertas-container">
+            <!-- Alerta 1: Acceso Denegado -->
+            <div class="alerta-security">
+                <i class="bi bi-shield-exclamation"></i>
+                <div class="alerta-content">
+                    <h5>⚠️ Acceso Denegado - Pabellón C</h5>
+                    <p>Aula C-205: Intento de acceso sin permisos validados - 14:35 PM</p>
+                </div>
+                <button class="btn btn-danger btn-sm ms-auto">
+                    <i class="bi bi-alert-fill"></i> Investigar
+                </button>
+            </div>
+            
+            <!-- Alerta 2: Apertura Forzada -->
+            <div class="alerta-security" style="animation-delay: 0.5s;">
+                <i class="bi bi-door-open-fill"></i>
+                <div class="alerta-content">
+                    <h5>🚨 Apertura Forzada - Pabellón B</h5>
+                    <p>Oficina B-102: Apertura detectada fuera de horario operativo - 14:28 PM</p>
+                </div>
+                <button class="btn btn-danger btn-sm ms-auto">
+                    <i class="bi bi-alert-fill"></i> Investigar
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicadores Estadísticos -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h6><i class="bi bi-building"></i> Total Recursos</h6>
+                    <div class="value">48</div>
+                    <small class="text-muted">Aulas + Oficinas</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h6><i class="bi bi-check-circle-fill"></i> Libres</h6>
+                    <div class="value text-success">32</div>
+                    <small class="text-success">66.7% disponibilidad</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h6><i class="bi bi-person-fill"></i> Ocupados</h6>
+                    <div class="value text-danger">14</div>
+                    <small class="text-danger">29.2% ocupación</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h6><i class="bi bi-pause-circle-fill"></i> Offline/Alerta</h6>
+                    <div class="value text-warning">2</div>
+                    <small class="text-warning">4.1% no disponible</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa Interactivo con Leyenda -->
+        <div class="mapa-interactivo">
+            <div class="mapa-header">
+                <h5><i class="bi bi-map"></i> Mapa Interactivo de la Facultad</h5>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-libre"></div>
+                        <span>Libre</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-ocupado"></div>
+                        <span>Ocupado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-offline"></div>
+                        <span>Offline</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-alerta"></div>
+                        <span>Alerta</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Representación visual del mapa (simplificada) -->
+            <div class="row text-center">
+                <div class="col-3">
+                    <div style="background: #28a745; height: 120px; border-radius: 8px; opacity: 0.8;"></div>
+                    <small class="mt-2 d-block">Pabellón A</small>
+                    <small class="text-success">12 libres</small>
+                </div>
+                <div class="col-3">
+                    <div style="background: linear-gradient(90deg, #dc3545 40%, #28a745 60%); height: 120px; border-radius: 8px; opacity: 0.8;"></div>
+                    <small class="mt-2 d-block">Pabellón B</small>
+                    <small class="text-danger">8 ocupados</small>
+                </div>
+                <div class="col-3">
+                    <div style="background: linear-gradient(90deg, #28a745 70%, #dc3545 20%, #6c757d 10%); height: 120px; border-radius: 8px; opacity: 0.8;"></div>
+                    <small class="mt-2 d-block">Pabellón C</small>
+                    <small class="text-warning">1 alerta</small>
+                </div>
+                <div class="col-3">
+                    <div style="background: #28a745; height: 120px; border-radius: 8px; opacity: 0.8;"></div>
+                    <small class="mt-2 d-block">Pabellón D</small>
+                    <small class="text-success">12 libres</small>
+                </div>
+            </div>
+            
+            <div class="last-update">
+                <i class="bi bi-clock"></i> 
+                Última actualización: <strong>14:40:23 PM</strong> (Tiempo real - 5 segundos)
+            </div>
+        </div>
+
+        <!-- Listado por Pabellones -->
+        <div class="row">
+            <!-- Pabellón A -->
+            <div class="col-md-6">
+                <div class="pabellon-card">
+                    <div class="pabellon-title">
+                        <i class="bi bi-building" style="color: #667eea;"></i>
+                        Pabellón A
+                    </div>
+                    
+                    <!-- Aula A-101 -->
+                    <div class="aula-card libre" onclick="verDetalle('A-101')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula A-101</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 40 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula A-102 -->
+                    <div class="aula-card ocupado" onclick="verDetalle('A-102')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula A-102</span>
+                            <span class="aula-estado estado-ocupado">Ocupado</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 35 personas</span>
+                            <span><i class="bi bi-person"></i> Curso: Programación I</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula A-201 -->
+                    <div class="aula-card libre" onclick="verDetalle('A-201')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula A-201</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 50 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Oficina A-001 -->
+                    <div class="aula-card offline" onclick="verDetalle('A-001')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Oficina A-001</span>
+                            <span class="aula-estado estado-offline">Offline</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-exclamation-triangle"></i> Sin conexión</span>
+                            <span><i class="bi bi-clock"></i> Desde: 13:15 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pabellón B -->
+            <div class="col-md-6">
+                <div class="pabellon-card">
+                    <div class="pabellon-title">
+                        <i class="bi bi-building" style="color: #dc3545;"></i>
+                        Pabellón B
+                    </div>
+                    
+                    <!-- Aula B-101 -->
+                    <div class="aula-card ocupado" onclick="verDetalle('B-101')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula B-101</span>
+                            <span class="aula-estado estado-ocupado">Ocupado</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 45 personas</span>
+                            <span><i class="bi bi-person"></i> Curso: Sistemas Distribuidos</span>
+                        </div>
+                    </div>
+
+                    <!-- Oficina B-102 -->
+                    <div class="aula-card alerta" onclick="verDetalle('B-102')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Oficina B-102</span>
+                            <span class="aula-estado estado-alerta">Alerta</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-door-open-fill"></i> Apertura forzada</span>
+                            <span><i class="bi bi-clock"></i> 14:28 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula B-201 -->
+                    <div class="aula-card libre" onclick="verDetalle('B-201')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula B-201</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 38 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula B-301 -->
+                    <div class="aula-card ocupado" onclick="verDetalle('B-301')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula B-301</span>
+                            <span class="aula-estado estado-ocupado">Ocupado</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 30 personas</span>
+                            <span><i class="bi bi-person"></i> Tutoría</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Pabellón C -->
+            <div class="col-md-6">
+                <div class="pabellon-card">
+                    <div class="pabellon-title">
+                        <i class="bi bi-building" style="color: #ffc107;"></i>
+                        Pabellón C
+                    </div>
+                    
+                    <!-- Aula C-101 -->
+                    <div class="aula-card libre" onclick="verDetalle('C-101')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula C-101</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 42 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula C-205 -->
+                    <div class="aula-card alerta" onclick="verDetalle('C-205')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula C-205</span>
+                            <span class="aula-estado estado-alerta">Alerta</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-shield-exclamation"></i> Acceso denegado</span>
+                            <span><i class="bi bi-clock"></i> 14:35 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Oficina C-001 -->
+                    <div class="aula-card libre" onclick="verDetalle('C-001')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Oficina C-001</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-building"></i> Administrative</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula C-301 -->
+                    <div class="aula-card ocupado" onclick="verDetalle('C-301')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula C-301</span>
+                            <span class="aula-estado estado-ocupado">Ocupado</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 28 personas</span>
+                            <span><i class="bi bi-person"></i> Examen parcial</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pabellón D -->
+            <div class="col-md-6">
+                <div class="pabellon-card">
+                    <div class="pabellon-title">
+                        <i class="bi bi-building" style="color: #28a745;"></i>
+                        Pabellón D
+                    </div>
+                    
+                    <!-- Aula D-101 -->
+                    <div class="aula-card libre" onclick="verDetalle('D-101')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula D-101</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 45 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula D-102 -->
+                    <div class="aula-card libre" onclick="verDetalle('D-102')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula D-102</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 40 personas</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- Aula D-201 -->
+                    <div class="aula-card ocupado" onclick="verDetalle('D-201')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Aula D-201</span>
+                            <span class="aula-estado estado-ocupado">Ocupado</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-capacity"></i> 32 personas</span>
+                            <span><i class="bi bi-person"></i> Laboratorio</span>
+                        </div>
+                    </div>
+
+                    <!-- Oficina D-001 -->
+                    <div class="aula-card libre" onclick="verDetalle('D-001')">
+                        <div class="aula-header">
+                            <span class="aula-nombre">Oficina D-001</span>
+                            <span class="aula-estado estado-libre">Libre</span>
+                        </div>
+                        <div class="aula-info">
+                            <span><i class="bi bi-building"></i> Servicios Generales</span>
+                            <span><i class="bi bi-check-circle"></i> Disponible</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle -->
+    <div class="modal fade" id="detalleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalleTitulo">Detalle del Recurso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Estado:</strong> <span id="detalleEstado"></span></p>
+                    <p><strong>Capacidad:</strong> <span id="detalleCapacidad"></span></p>
+                    <p><strong>Último evento:</strong> <span id="detalleEvento"></span></p>
+                    <p><strong>Nodo:</strong> <span id="detalleNodo"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para funcionalidad -->
+    <script>
+        // Función para ver detalle del recurso
+        function verDetalle(aula) {
+            const modal = new bootstrap.Modal(document.getElementById('detalleTitulo'));
+            
+            // Simular datos (en producción, esto se consultarí¬a a la BD)
+            document.getElementById('detalleTitulo').textContent = 'Detalle: ' + aula;
+            document.getElementById('detalleEstado').textContent = 'Disponible';
+            documento.getElementById('detalleCapacidad').textContent = '40 personas';
+            document.getElementById('detalleEvento').textContent = '14:40 PM';
+            document.getElementById('detalleNodo').textContent = 'Nodo-' + aula;
+            
+            modal.show();
+        }
+
+        // Simular actualización en tiempo real (cada 5 segundos)
+        setInterval(function() {
+            const ahora = new Date();
+            const tiempo = ahora.getHours() + ':' + ahora.getMinutes() + ':' + ahora.getSeconds();
+            
+            // Actualizar timestamp
+            document.querySelector('.last-update strong').textContent = tiempo + ' PM';
+            
+            // En producción: consultar a la base de datos los últimos eventos
+            console.log('Actualizando estado de recursos...');
+            // fetch('/api/recursos/estado').then(...)
+        }, 5000);
+
+        // Manejo de alertas
+        document.querySelectorAll('.btn-danger').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('Investigando alerta de seguridad...');
+                // En producción: redirigir al sistema de ticketing o logs
+            });
+        });
+
+        // Inicializar timestamp
+        const ahora = new Date();
+        const tiempo = ahora.getHours() + ':' + ahora.getMinutes() + ':' + ahora.getSeconds();
+        document.querySelector('.last-update strong').textContent = tiempo + ' PM';
+    </script>
+</body>
+</html>

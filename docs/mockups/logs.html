@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Auditoría (Logs)</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            min-height: 100vh;
+        }
+        .header-panel {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .header-panel h1 {
+            font-weight: 600;
+            margin: 0;
+        }
+        .header-panel .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .card-header-custom i {
+            margin-right: 8px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .stats-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-box h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .stats-box p {
+            color: #666;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+        .text-primary { color: #667eea; }
+        .text-success { color: #28a745; }
+        .text-warning { color: #ffc107; }
+        .text-danger { color: #dc3545; }
+        .text-info { color: #17a2b8; }
+        .user-table {
+            width: 100%;
+            margin: 0;
+        }
+        .user-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #444;
+            padding: 12px 15px;
+            border-bottom: 2px solid #667eea;
+            font-size: 13px;
+        }
+        .user-table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 13px;
+        }
+        .user-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .modalidad-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .modalidad-nfc {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        .modalidad-manual {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #333;
+        }
+        .estatus-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .estatus-ingreso {
+            background: #28a745;
+            color: white;
+        }
+        .estatus-egreso {
+            background: #dc3545;
+            color: white;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-details h5 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .user-details small {
+            color: #666;
+            font-size: 12px;
+        }
+        .entity-info {
+            background: #e8ecff;
+            border: 1px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .entity-info h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .entity-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+        .entity-field .campo {
+            font-weight: 600;
+            color: #444;
+        }
+        .entity-field .tipo {
+            color: #666;
+        }
+        .timeline-item {
+            padding-left: 20px;
+            border-left: 2px solid #667eea;
+            padding: 10px 0 10px 20px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+        .chart-container h6 {
+            color: #444;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .filter-group h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .btn-action {
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+        .btn-exportar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+        }
+        .btn-filtrar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        .btn-reset {
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+            border: none;
+        }
+        .log-detail {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .log-detail .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .log-detail .hora {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+        .log-detail .contenido {
+            font-size: 13px;
+            color: #666;
+        }
+        .log-detail .contenido strong {
+            color: #444;
+        }
+        .accountability-box {
+            background: linear-gradient(135deg, #fffef8 0%, #fff 100%);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .accountability-box i {
+            color: #ffc107;
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        .accountability-box h6 {
+            color: #ffc107;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .accountability-box ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .pie-chart circle {
+            fill: transparent;
+            stroke-width: 40;
+        }
+        .pie-chart NFC {
+            fill: #28a745;
+        }
+        .pie-chart manual {
+            fill: #ffc107;
+        }
+        .pie-chart-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .pie-chart-label .percentage {
+            font-size: 32px;
+            font-weight: 700;
+            color: #28a745;
+        }
+        .pie-chart-label .text {
+            font-size: 12px;
+            color: #666;
+        }
+        .legend-chart {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .legend-nfc { background: #28a745; }
+        .legend-manual { background: #ffc107; }
+        .nav-tabs-custom .nav-link {
+            color: #444;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: transparent;
+        }
+        .modal-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-header-custom .btn-close {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header del Panel -->
+    <div class="header-panel">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-file-earmark-bargraph"></i> Reportes y Auditoría (Logs)</h1>
+                    <div class="subtitle">Basado en entidades Acceso y Reporte - Accountability de modalidades de ingreso (NFC vs. Manual)</div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-exportar btn-action btn-sm">
+                        <i class="bi bi-download"></i> Exportar Reporte
+                    </button>
+                    <button class="btn btn-light btn-sm ms-2">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-primary">2,847</h3>
+                    <p>Accesos Totales (Mes)</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-success">2,698</h3>
+                    <p>Modalidad NFC (94.8%)</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-warning">149</h3>
+                    <p>Apertura Manual (5.2%)</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-info">1,423</h3>
+                    <p>Ingresos (Hoy)</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-danger">1,389</h3>
+                    <p>Egresos (Hoy)</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-warning">12</h3>
+                    <p>Excepciones (Hoy)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart de Modalidades -->
+        <div class="chart-container">
+            <h6><i class="bi bi-pie-chart"></i> Distribución de Modalidades de Ingreso - Mes Actual</h6>
+            <div class="pie-chart">
+                <svg width="200" height="200">
+                    <circle cx="100" cy="100" r="80" stroke="#28a745" class="NFC"/>
+                    <circle cx="100" cy="100" r="80" stroke="#ffc107" class="manual" stroke-dasharray="113 477"/>
+                </svg>
+                <div class="pie-chart-label">
+                    <div class="percentage">94.8%</div>
+                    <div class="text">NFC</div>
+                </div>
+            </div>
+            <div class="legend-chart">
+                <div class="legend-item">
+                    <div class="legend-color legend-nfc"></div>
+                    <span>Modalidad NFC: 2,698 (94.8%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-manual"></div>
+                    <span>Apertura Manual: 149 (5.2%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegación -->
+        <ul class="nav nav-tabs nav-tabs-custom mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#presentismo">
+                    <i class="bi bi-clock-history"></i> Presentismo Automático
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#auditoria">
+                    <i class="bi bi-shield-check"></i> Auditoría
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#excepciones">
+                    <i class="bi bi-exclamation-triangle"></i> Excepciones
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#reportes">
+                    <i class="bi bi-file-earmark-text"></i> Reportes Generados
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab: Presentismo Automático -->
+            <div class="tab-pane fade show active" id="presentismo">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-clock-history"></i> Marcas de Presentismo Automáticas
+                    </div>
+                    <div class="card-body">
+                        <!-- Filtros rápidos -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="date" class="form-control" value="2026-06-07">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los espacios</option>
+                                    <option value="A-101">Aula A-101</option>
+                                    <option value="A-102">Aula A-102</option>
+                                    <option value="B-101">Aula B-101</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="ingreso">Ingreso</option>
+                                    <option value="egreso">Egreso</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-filtrar btn-action btn-sm">
+                                    <i class="bi bi-search"></i> Filtrar
+                                </button>
+                                <button class="btn btn-exportar btn-action btn-sm ms-2">
+                                    <i class="bi bi-download"></i> Exportar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Accountability -->
+                        <div class="accountability-box">
+                            <h6><i class="bi bi-shield-check"></i> Accountability - Identificación de Modalidad</h6>
+                            <p class="mb-2"><strong>Garantía de trazabilidad:</strong> Cada registro de acceso identifica claramente la modalidad de ingreso para garantizar el accountability:</p>
+                            <ul>
+                                <li><span class="modalidad-badge modalidad-nfc"><i class="bi bi-nfc"></i> NFC</span> = Ingreso automático con credencial física (94.8%)</li>
+                                <li><span class="modalidad-badge modalidad-manual"><i class="bi bi-hand-index-thumb"></i> Manual</span> = Apertura remota por SSGG (5.2%) - Requiere validación manual</li>
+                            </ul>
+                        </div>
+
+                        <!-- Tabla de presentismo -->
+                        <div class="table-responsive">
+                            <table class="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Usuario</th>
+                                        <th>Legajo</th>
+                                        <th>Rol</th>
+                                        <th>Ubicación</th>
+                                        <th>Tipo</th>
+                                        <th>Modalidad</th>
+                                        <th>Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>14:45:23</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">DG</div>
+                                                <div class="user-details">
+                                                    <h5>Domingo García</h5>
+                                                    <small>Administrador</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>D-00123</td>
+                                        <td><span class="badge bg-primary">Administrador</span></td>
+                                        <td>Aula A-102</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-nfc">
+                                                <i class="bi bi-nfc"></i> NFC
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('1')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14:35:12</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">DG</div>
+                                                <div class="user-details">
+                                                    <h5>Domingo García</h5>
+                                                    <small>Administrador</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>D-00123</td>
+                                        <td><span class="badge bg-primary">Administrador</span></td>
+                                        <td>Aula A-102</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-egreso">
+                                                <i class="bi bi-box-arrow-right"></i> Egreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-manual">
+                                                <i class="bi bi-hand-index-thumb"></i> Manual
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('2')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14:20:45</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">MR</div>
+                                                <div class="user-details">
+                                                    <h5>María Rodríguez</h5>
+                                                    <small>Docente</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>D-00456</td>
+                                        <td><span class="badge bg-success">Docente</span></td>
+                                        <td>Aula A-101</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-nfc">
+                                                <i class="bi bi-nfc"></i> NFC
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('3')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14:15:30</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">CF</div>
+                                                <div class="user-details">
+                                                    <h5>Carlos Fernández</h5>
+                                                    <small>SSGG</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>S-00089</td>
+                                        <td><span class="badge bg-warning">SSGG</span></td>
+                                        <td>Oficina Admin</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-nfc">
+                                                <i class="bi bi-nfc"></i> NFC
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('4')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14:10:18</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">AL</div>
+                                                <div class="user-details">
+                                                    <h5>Ana López</h5>
+                                                    <small>Alumno</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>A-00234</td>
+                                        <td><span class="badge bg-info">Alumno</span></td>
+                                        <td>Laboratorio 1</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-manual">
+                                                <i class="bi bi-hand-index-thumb"></i> Manual
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('5')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>13:55:42</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">RM</div>
+                                                <div class="user-details">
+                                                    <h5>Roberto Martínez</h5>
+                                                    <small>Docente</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>D-00789</td>
+                                        <td><span class="badge bg-success">Docente</span></td>
+                                        <td>Aula B-101</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-nfc">
+                                                <i class="bi bi-nfc"></i> NFC
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('6')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>13:45:15</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">LF</div>
+                                                <div class="user-details">
+                                                    <h5>Lucía Fernández</h5>
+                                                    <small>Docente</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>D-00567</td>
+                                        <td><span class="badge bg-success">Docente</span></td>
+                                        <td>Aula C-101</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-manual">
+                                                <i class="bi bi-hand-index-thumb"></i> Manual
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('7')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>13:30:08</strong></td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">JS</div>
+                                                <div class="user-details">
+                                                    <h5>Juan Sánchez</h5>
+                                                    <small>Alumno</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>A-00345</td>
+                                        <td><span class="badge bg-info">Alumno</span></td>
+                                        <td>Aula D-101</td>
+                                        <td>
+                                            <span class="estatus-badge estatus-ingreso">
+                                                <i class="bi bi-box-arrow-in-right"></i> Ingreso
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="modalidad-badge modalidad-nfc">
+                                                <i class="bi bi-nfc"></i> NFC
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="verDetalle('8')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Auditoría -->
+            <div class="tab-pane fade" id="auditoria">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-shield-check"></i> Auditoría - Filtros Avanzados
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-info-box">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Objetivo de auditoría:</strong> Permitir la trazabilidad completa de todos los accesos mediante filtros por persona, espacio o fecha para garantizar el accountability del sistema.
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <h6><i class="bi bi-person"></i> Filtro por Persona</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Legajo *</label>
+                                        <input type="text" class="form-control" placeholder="Ej: D-00123">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" placeholder="Nombre o apellido">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Rol</label>
+                                        <select class="form-select">
+                                            <option value="">Todos los roles</option>
+                                            <option value="admin">Administrador</option>
+                                            <option value="docente">Docente</option>
+                                            <option value="ssgg">SSGG</option>
+                                            <option value="alumno">Alumno</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <h6><i class="bi bi-building"></i> Filtro por Espacio</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Pabellón</label>
+                                        <select class="form-select">
+                                            <option value="">Todos los pabellones</option>
+                                            <option value="A">Pabellón A</option>
+                                            <option value="B">Pabellón B</option>
+                                            <option value="C">Pabellón C</option>
+                                            <option value="D">Pabellón D</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Aula/Espacio</label>
+                                        <select class="form-select">
+                                            <option value="">Todas las aulas</option>
+                                            <option value="A-101">Aula A-101</option>
+                                            <option value="A-102">Aula A-102</option>
+                                            <option value="B-101">Aula B-101</option>
+                                            <option value="C-101">Aula C-101</option>
+                                            <option value="D-101">Aula D-101</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <h6><i class="bi bi-calendar"></i> Filtro por Fecha</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha Inicio *</label>
+                                        <input type="date" class="form-control" value="2026-06-01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha Fin *</label>
+                                        <input type="date" class="form-control" value="2026-06-07">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Modalidad</label>
+                                        <select class="form-select">
+                                            <option value="">Todas las modalidades</option>
+                                            <option value="nfc">NFC</option>
+                                            <option value="manual">Manual</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button class="btn btn-reset btn-action">
+                                <i class="bi bi-x-circle"></i> Resetear
+                            </button>
+                            <button class="btn btn-filtrar btn-action">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-exportar btn-action">
+                                <i class="bi bi-download"></i> Exportar
+                            </button>
+                        </div>
+
+                        <!-- Resultados de auditoría -->
+                        <div class="mt-4">
+                            <h6>Resultados de Auditoría:</h6>
+                            <div class="log-detail">
+                                <div class="header">
+                                    <span class="hora"><i class="bi bi-clock"></i> 14:45:23</span>
+                                    <span class="modalidad-badge modalidad-nfc"><i class="bi bi-nfc"></i> NFC</span>
+                                </div>
+                                <div class="contenido">
+                                    <strong>Usuario:</strong> Domingo García (D-00123) - Administrador<br>
+                                    <strong>Espacio:</strong> Aula A-102 - Pabellón A<br>
+                                    <strong>Tipo:</strong> Ingreso<br>
+                                    <strong>Fecha:</strong> 07/06/2026
+                                </div>
+                            </div>
+                            <div class="log-detail">
+                                <div class="header">
+                                    <span class="hora"><i class="bi bi-clock"></i> 14:10:18</span>
+                                    <span class="modalidad-badge modalidad-manual"><i class="bi bi-hand-index-thumb"></i> Manual</span>
+                                </div>
+                                <div class="contenido">
+                                    <strong>Usuario:</strong> Ana López (A-00234) - Alumno<br>
+                                    <strong>Espacio:</strong> Laboratorio 1<br>
+                                    <strong>Tipo:</strong> Ingreso<br>
+                                    <strong>Modalidad:</strong> Apertura remota por SSGG (UC-03)<br>
+                                    <strong>Fecha:</strong> 07/06/2026
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Excepciones -->
+            <div class="tab-pane fade" id="excepciones">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-exclamation-triangle"></i> Excepciones - Aperturas Manuales
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-warning-custom">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Excepciones:</strong> Accesos realizados mediante apertura manual (UC-03) que requieren validación manual por personal de SSGG.
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Usuario</th>
+                                        <th>Legajo</th>
+                                        <th>Espacio</th>
+                                        <th>Motivo</th>
+                                        <th>SSGG</th>
+                                        <th>Validación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>14:35:12</strong></td>
+                                        <td>Domingo García</td>
+                                        <td>D-00123</td>
+                                        <td>Aula A-102</td>
+                                        <td><span class="badge bg-warning">Sin NFC</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Validada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14:10:18</strong></td>
+                                        <td>Ana López</td>
+                                        <td>A-00234</td>
+                                        <td>Laboratorio 1</td>
+                                        <td><span class="badge bg-warning">NFC dañado</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Validada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>13:45:15</strong></td>
+                                        <td>Lucía Fernández</td>
+                                        <td>D-00567</td>
+                                        <td>Aula C-101</td>
+                                        <td><span class="badge bg-danger">Fallo lector</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Validada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>11:20:30</strong></td>
+                                        <td>Pedro Gómez</td>
+                                        <td>D-00890</td>
+                                        <td>Aula B-201</td>
+                                        <td><span class="badge bg-warning">Sin NFC</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Validada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>10:15:45</strong></td>
+                                        <td>Sofía Ramírez</td>
+                                        <td>A-00456</td>
+                                        <td>Aula D-101</td>
+                                        <td><span class="badge bg-warning">NFC perdida</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-danger"><i class="bi bi-x-circle"></i> Pendiente</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Reportes Generados -->
+            <div class="tab-pane fade" id="reportes">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-file-earmark-text"></i> Reportes Generados
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha Generación</th>
+                                        <th>Tipo Reporte</th>
+                                        <th>Usuario Genera</th>
+                                        <th>Periodo</th>
+                                        <th>Registros</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>07/06/2026 14:30</td>
+                                        <td><span class="badge bg-primary">Presentismo Diario</span></td>
+                                        <td>Domingo García (D-00123)</td>
+                                        <td>07/06/2026</td>
+                                        <td>284</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-exportar">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2026 18:45</td>
+                                        <td><span class="badge bg-success">Audit. Semanal</span></td>
+                                        <td>Domingo García (D-00123)</td>
+                                        <td>01/06-06/06/2026</td>
+                                        <td>1,847</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-exportar">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>05/06/2026 16:20</td>
+                                        <td><span class="badge bg-warning">Excepciones</span></td>
+                                        <td>Carlos Fernández (S-00089)</td>
+                                        <td>01/06-05/06/2026</td>
+                                        <td>67</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-exportar">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>01/06/2026 09:00</td>
+                                        <td><span class="badge bg-info">Presentismo Mensual</span></td>
+                                        <td>Domingo García (D-00123)</td>
+                                        <td>Mayo 2026</td>
+                                        <td>2,847</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-exportar">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle -->
+    <div class="modal fade" id="detalleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title"><i class="bi bi-eye"></i> Detalle del Acceso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Información del Usuario</h6>
+                            <div class="log-detail">
+                                <div class="contenido">
+                                    <strong>Nombre:</strong> <span id="detalleNombre"></span><br>
+                                    <strong>Legajo:</strong> <span id="detalleLegajo"></span><br>
+                                    <strong>Rol:</strong> <span id="detalleRol"></span><br>
+                                    <strong>Email:</strong> <span id="detalleEmail"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Información del Acceso</h6>
+                            <div class="log-detail">
+                                <div class="contenido">
+                                    <strong>Fecha:</strong> <span id="detalleFecha"></span><br>
+                                    <strong>Hora:</strong> <span id="detalleHora"></span><br>
+                                    <strong>Espacio:</strong> <span id="detalleEspacio"></span><br>
+                                    <strong>Tipo:</strong> <span id="detalleTipo"></span><br>
+                                    <strong>Modalidad:</strong> <span id="detalleModalidad"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Metadatos del Sistema</h6>
+                            <div class="log-detail">
+                                <div class="contenido">
+                                    <strong>ID Accceso:</strong> <span id="detalleId"></span><br>
+                                    <strong>Nodo:</strong> <span id="detalleNodo"></span><br>
+                                    <strong>IP:</strong> <span id="detalleIP"></span><br>
+                                    <strong>Timestamp:</strong> <span id="detalleTimestamp"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-exportar">
+                        <i class="bi bi-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para funcionalidad -->
+    <script>
+        // Ver detalle del acceso
+        function verDetalle(id) {
+            const modal = new bootstrap.Modal(document.getElementById('detalleModal'));
+            
+            // Datos simulados (en producción, consultar a la BD)
+            const datos = {
+                '1': {
+                    nombre: 'Domingo García',
+                    legajo: 'D-00123',
+                    rol: 'Administrador',
+                    email: 'domingo.garcia@facultad.edu.ar',
+                    fecha: '07/06/2026',
+                    hora: '14:45:23',
+                    espacio: 'Aula A-102 - Pabellón A',
+                    tipo: 'Ingreso',
+                    modalidad: 'NFC (Automático)',
+                    id: '12847',
+                    nodo: 'Nodo-A-102',
+                    ip: '192.168.1.102',
+                    timestamp: '2026-06-07T14:45:23.456Z'
+                }
+            };
+            
+            const detalle = datos[id] || datos['1'];
+            
+            document.getElementById('detalleNombre').textContent = detalle.nombre;
+            document.getElementById('detalleLegajo').textContent = detalle.legajo;
+            document.getElementById('detalleRol').textContent = detalle.rol;
+            document.getElementById('detalleEmail').textContent = detalle.email;
+            document.getElementById('detalleFecha').textContent = detalle.fecha;
+            document.getElementById('detalleHora').textContent = detalle.hora;
+            document.getElementById('detalleEspacio').textContent = detalle.espacio;
+            document.getElementById('detalleTipo').textContent = detalle.tipo;
+            document.getElementById('detalleModalidad').textContent = detalle.modalidad;
+            document.getElementById('detalleId').textContent = detalle.id;
+            document.getElementById('detalleNodo').textContent = detalle.nodo;
+            document.getElementById('detalleIP').textContent = detalle.ip;
+            document.getElementById('detalleTimestamp').textContent = detalle.timestamp;
+            
+            modal.show();
+        }
+
+        // Inicializar
+        console.log('Módulo de Reportes y Auditoría cargado correctamente');
+    </script>
+</body>
+</html>
+
