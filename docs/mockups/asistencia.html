@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia Manual y Apertura Remota</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            min-height: 100vh;
+        }
+        .header-panel {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .header-panel h1 {
+            font-weight: 600;
+            margin: 0;
+        }
+        .header-panel .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .header-panel .badge-importancia {
+            background: #ffc107;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .card-header-custom i {
+            margin-right: 8px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-action {
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+        .btn-verificar {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            color: white;
+        }
+        .btn-verificar:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-apertura {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            font-size: 18px;
+            padding: 15px 30px;
+            animation: pulse-button 2s infinite;
+        }
+        .btn-apertura:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+        .btn-apertura:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            animation: none;
+        }
+        @keyframes pulse-button {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+        }
+        .btn-cancelar {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+        }
+        .verification-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #17a2b8;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .verification-card.success {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #f0fff4 100%);
+        }
+        .verification-card i {
+            font-size: 48px;
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+        .verification-card.success i {
+            color: #28a745;
+        }
+        .verification-card h6 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .verification-card.success h6 {
+            color: #28a745;
+        }
+        .verification-card p {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+        .user-verification-box {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            display: none;
+        }
+        .user-verification-box.displayed {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .user-info h4 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .user-info .legajo {
+            color: #666;
+            font-size: 14px;
+        }
+        .user-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .detail-item label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .detail-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .cronograma-box {
+            background: #e8ecff;
+            border: 1px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .cronograma-box h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-activo {
+            background: #28a745;
+            color: white;
+        }
+        .status-excepcion {
+            background: #ffc107;
+            color: #333;
+        }
+        .alert-warning-custom {
+            background: #fffef8;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-warning-custom i {
+            color: #ffc107;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .alert-success-custom {
+            background: #f8fff9;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-success-custom i {
+            color: #28a745;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .alert-info-custom {
+            background: #e7f3ff;
+            border: 2px solid #17a2b8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-info-custom i {
+            color: #17a2b8;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .lock-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .lock-icon {
+            font-size: 48px;
+        }
+        .lock-locked {
+            color: #dc3545;
+        }
+        .lock-unlocked {
+            color: #28a745;
+            animation: unlock 1s ease;
+        }
+        @keyframes unlock {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .lock-info h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .lock-info p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 13px;
+        }
+        .timeline-excepcion {
+            background: #fffef8;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .timeline-excepcion h6 {
+            color: #ffc107;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .timeline-excepcion .step {
+            padding-left: 20px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .timeline-excepcion .step::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .modal-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-header-custom .btn-close {
+            filter: invert(1);
+        }
+        .uc-info {
+            background: #e8ecff;
+            border: 1px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .uc-info h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .uc-info ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+        .stats-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-box h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .stats-box p {
+            color: #666;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+        .text-primary { color: #667eea; }
+        .text-success { color: #28a745; }
+        .text-warning { color: #ffc107; }
+        .text-danger { color: #dc3545; }
+        .text-info { color: #17a2b8; }
+        .nav-tabs-custom .nav-link {
+            color: #444;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header del Panel -->
+    <div class="header-panel">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <h1>
+                        <i class="bi bi-hand-index-thumb"></i> 
+                        Asistencia Manual y Apertura Remota
+                        <span class="badge-importancia">Importancia: Media</span>
+                    </h1>
+                    <div class="subtitle">UC-03: Solicitar Asistencia Manual - Flujo de contingencia para continuidad operativa</div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-clock-history"></i> Historial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Información del UC-03 -->
+        <div class="uc-info">
+            <h6><i class="bi bi-info-circle"></i> Caso de Uso UC-03: Solicitar Asistencia Manual</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Objetivo:</strong> Garantizar el acceso ante contingencias técnicas o falta de credencial física
+                    <br><br>
+                    <strong>Precondición:</strong> Usuario registrado en el padrón de la facultad
+                </div>
+                <div class="col-md-6">
+                    <strong>Importancia:</strong> Media - Flujo de contingencia necesario para continuidad operativa
+                    <br><br>
+                    <strong>Postcondición:</strong> Cerradura desbloqueada + registro de excepción almacenado
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-primary">48</h3>
+                    <p>Asistencias Manuales (Semana)</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-warning">12</h3>
+                    <p>Aperturas Remotas (Hoy)</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-danger">3</h3>
+                    <p>Fallas de Lector (Hoy)</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-success">45</h3>
+                    <p>Exitosas (93.75%)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegación -->
+        <ul class="nav nav-tabs nav-tabs-custom mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#verificacion">
+                    <i class="bi bi-person-check"></i> Verificación de Identidad
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#apertura">
+                    <i class="bi bi-door-open"></i> Apertura Remota
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#historial">
+                    <i class="bi bi-clock-history"></i> Historial de Excepciones
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab: Verificación de Identidad -->
+            <div class="tab-pane fade show active" id="verificacion">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card-custom">
+                            <div class="card-header-custom">
+                                <i class="bi bi-search"></i> 1. Buscar Usuario sin NFC
+                            </div>
+                            <div class="card-body">
+                                <div class="alert-info-custom">
+                                    <i class="bi bi-info-circle"></i>
+                                    <strong>¿Cuándo usar este módulo?</strong>
+                                    <ul class="mt-2 mb-0" style="margin-left: 30px;">
+                                        <li>Usuario no cuenta con su dispositivo NFC</li>
+                                        <li>Fallo del lector NFC en el punto de acceso</li>
+                                        <li>Credencial física dañada o perdida</li>
+                                    </ul>
+                                </div>
+
+                                <form id="formBuscarUsuario">
+                                    <div class="mb-3">
+                                        <label class="form-label">Buscar por Legajo o Nombre *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="usuarioBusqueda" placeholder="Ingrese legajo (ej: D-00123) o nombre..." required>
+                                            <button class="btn btn-vericher" type="submit">
+                                                <i class="bi bi-search"></i> Buscar
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">El usuario debe estar registrado en el padrón de la facultad</small>
+                                    </div>
+                                </form>
+
+                                <!-- Resultados de búsqueda -->
+                                <div id="resultadoBusqueda" style="display: none;">
+                                    <div class="alert-warning-custom">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <strong>Usuario sin NFC activo:</strong> Domingo García no tiene credencial NFC vinculada o la misma no está funcionando. Proceda con la verificación manual.
+                                    </div>
+
+                                    <button class="btn btn-vericher btn-action w-100 mt-3" onclick="verificarIdentidad()">
+                                        <i class="bi bi-person-check"></i> Verificar Identidad Manualmente
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="card-custom">
+                            <div class="card-header-custom">
+                                <i class="bi bi-shield-check"></i> 2. Verificación Manual
+                            </div>
+                            <div class="card-body">
+                                <div class="verification-card" id="cardVerificacion">
+                                    <i class="bi bi-person-x"></i>
+                                    <h6>Esperando verificación...</h6>
+                                    <p>El personal de SSGG debe verificar la identidad del usuario de forma manual antes de proceder con la apertura.</p>
+                                </div>
+
+                                <!-- Usuario verificado -->
+                                <div class="user-verification-box" id="usuarioVerificado">
+                                    <div class="user-header">
+                                        <div class="user-avatar">DG</div>
+                                        <div class="user-info">
+                                            <h4>Domingo García</h4>
+                                            <div class="legajo">Legajo: D-00123 | Administrador</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="user-details">
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-envelope"></i> Email</label>
+                                            <div class="value">domingo.garcia@facultad.edu.ar</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-phone"></i> Teléfono</label>
+                                            <div class="value">+54 9 351 XXX-XXXX</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-building"></i> Departamento</label>
+                                            <div class="value">Informática</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-calendar-check"></i> Estado</label>
+                                            <div class="value">
+                                                <span class="status-badge status-activo">Activo</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-nfc"></i> NFC</label>
+                                            <div class="value">
+                                                <span class="text-danger"><i class="bi bi-x-circle"></i> Sin NFC</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label><i class="bi bi-check-circle"></i> Padrón</label>
+                                            <div class="value">
+                                                <span class="text-success"><i class="bi bi-check-circle"></i> Registrado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cronograma-box">
+                                        <h6><i class="bi bi-calendar3"></i> Cronograma Vigente</h6>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Días:</small>
+                                                <div class="fw-bold">Lunes a Viernes</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Horario:</small>
+                                                <div class="fw-bold">08:00 - 18:00</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">Espacios habilitados:</small>
+                                            <div class="fw-bold">Aula A-102, Oficina Administrativa</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert-success-custom">
+                                        <i class="bi bi-check-circle"></i>
+                                        <strong>Identidad verificada:</strong> El personal de SSGG confirma que la identidad del usuario coincide con los datos del padrón. Puede proceder con la apertura remota.
+                                    </div>
+
+                                    <button class="btn btn-success btn-action w-100" onclick="activarTab('apertura')">
+                                        <i class="bi bi-arrow-right"></i> Continuar a Apertura Remota
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Apertura Remota -->
+            <div class="tab-pane fade" id="apertura">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-door-open"></i> 3. Apertura Remota de Cerradura
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-info-custom">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Secuencia Normal UC-03:</strong>
+                            <div class="timeline-excepcion mt-3">
+                                <div class="step">Personal autorizado verifica identidad y cronograma de forma manual</div>
+                                <div class="step">Personal ingresa al sistema administrativo</div>
+                                <div class="step">Se envía comando de apertura remota al aula específica</div>
+                                <div class="step">El sistema registra asistencia (CU-04) indicando modalidad manual</div>
+                            </div>
+                        </div>
+
+                        <form id="formAperturaRemota">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-person"></i> Usuario Solicitante</h6>
+                                    <div class="detail-item mb-3">
+                                        <label>Nombre</label>
+                                        <div class="value">Domingo García</div>
+                                    </div>
+                                    <div class="detail-item mb-3">
+                                        <label>Legajo</label>
+                                        <div class="value">D-00123</div>
+                                    </div>
+                                    <div class="detail-item mb-3">
+                                        <label>Rol</label>
+                                        <div class="value">Administrador</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-building"></i> Espacio a Abrir</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Pabellón *</label>
+                                        <select class="form-select" id="pabellonApertura" required>
+                                            <option value="">Seleccione pabellón...</option>
+                                            <option value="A">Pabellón A</option>
+                                            <option value="B">Pabellón B</option>
+                                            <option value="C">Pabellón C</option>
+                                            <option value="D">Pabellón D</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Aula/Espacio *</label>
+                                        <select class="form-select" id="aulaApertura" required>
+                                            <option value="">Seleccione aula...</option>
+                                            <option value="A-101">Aula A-101 (40 personas)</option>
+                                            <option value="A-102">Aula A-102 (35 personas)</option>
+                                            <option value="A-201">Aula A-201 (50 personas)</option>
+                                            <option value="OFICINA-ADMIN">Oficina Administrativa</option>
+                                            <option value="LABORATORIO-1">Laboratorio 1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-3"><i class="bi bi-exclamation-triangle"></i> Motivo de la Excepción</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo de contingencia *</label>
+                                        <select class="form-select" id="motivoExcepcion" required>
+                                            <option value="">Seleccione motivo...</option>
+                                            <option value="sin-nfc">No cuenta con dispositivo NFC</option>
+                                            <option value="fallo-lector">Fallo del lector NFC</option>
+                                            <option value="nfc-danado">Credencial NFC dañada</option>
+                                            <option value="nfc-perdida">Credencial NFC perdida</option>
+                                            <option value="urgencia">Urgencia operativa</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Observaciones</label>
+                                        <textarea class="form-control" rows="3" placeholder="Describa brevemente la situación..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <h6 class="mb-3"><i class="bi bi-lock"></i> Estado de la Cerradura</h6>
+                                    <div class="lock-status" id="lockStatus">
+                                        <div class="lock-icon lock-locked" id="lockIcon">
+                                            <i class="bi bi-lock"></i>
+                                        </div>
+                                        <div class="lock-info">
+                                            <h5 id="lockTitle">Cerrada</h5>
+                                            <p id="lockText">Esperando comando de apertura...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Botón de Apertura Remota -->
+                            <div class="text-center">
+                                <button type="button" class="btn btn-apertura btn-action" id="btnApertura" disabled onclick="enviarApertura()">
+                                    <i class="bi bi-box-arrow-in-right"></i> ENVIAR COMANDO DE APERTURA REMOTA
+                                </button>
+                                <p class="text-muted mt-2 mb-3">
+                                    <small><i class="bi bi-info-circle"></i> El botón se habilita después de verificar la identidad del usuario</small>
+                                </p>
+
+                                <button type="button" class="btn btn-cancelar btn-action" onclick="cancelarApertura()">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Resultado de apertura -->
+                <div class="alert-success-custom" id="resultadoApertura" style="display: none;">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>¡Apertura exitosa!</strong>
+                    <div class="mt-2">
+                        <ul class="mb-0" style="margin-left: 30px;">
+                            <li><strong>Cerradura desbloqueada:</strong> <span id="aulaAperturaTexto"></span></li>
+                            <li><strong>Usuario:</strong> Domingo García (D-00123)</li>
+                            <li><strong>Modalidad:</strong> Asistencia Manual (Excepción)</li>
+                            <li><strong>Hora:</strong> <span id="horaApertura"></span></li>
+                            <li><strong>Registro:</strong> El registro de excepción quedó almacenado en el servidor (CU-04)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Historial de Excepciones -->
+            <div class="tab-pane fade" id="historial">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-clock-history"></i> Historial de Asistencias Manuales y Aperturas Remotas
+                    </div>
+                    <div class="card-body">
+                        <!-- Filtros -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="date" class="form-control" value="2026-06-07">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los motivos</option>
+                                    <option value="sin-nfc">No cuenta con NFC</option>
+                                    <option value="fallo-lector">Fallo del lector</option>
+                                    <option value="nfc-danado">NFC dañado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los estados</option>
+                                    <option value="exitosa">Exitosa</option>
+                                    <option value="cancelada">Cancelada</option>
+                                    <option value="error">Error</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-primary btn-action">
+                                    <i class="bi bi-download"></i> Exportar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de historial -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Usuario</th>
+                                        <th>Legajo</th>
+                                        <th>Espacio</th>
+                                        <th>Motivo</th>
+                                        <th>SSGG</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>14:35 PM</td>
+                                        <td>Domingo García</td>
+                                        <td>D-00123</td>
+                                        <td>Aula A-102</td>
+                                        <td><span class="badge bg-warning">Sin NFC</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Exitosa</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>13:20 PM</td>
+                                        <td>María Rodríguez</td>
+                                        <td>D-00456</td>
+                                        <td>Aula A-101</td>
+                                        <td><span class="badge bg-danger">Fallo lector</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Exitosa</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>11:45 AM</td>
+                                        <td>Ana López</td>
+                                        <td>A-00234</td>
+                                        <td>Laboratorio 1</td>
+                                        <td><span class="badge bg-warning">NFC dañado</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Exitosa</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:30 AM</td>
+                                        <td>Roberto Martínez</td>
+                                        <td>D-00789</td>
+                                        <td>Aula B-101</td>
+                                        <td><span class="badge bg-warning">Sin NFC</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-danger"><i class="bi bi-x-circle"></i> Cancelada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>09:15 AM</td>
+                                        <td>Lucía Fernández</td>
+                                        <td>D-00567</td>
+                                        <td>Aula C-101</td>
+                                        <td><span class="badge bg-danger">Fallo lector</span></td>
+                                        <td>Carlos Fernández</td>
+                                        <td><span class="text-success"><i class="bi bi-check-circle"></i> Exitosa</span></td>
+                                    </div>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title">Confirmar Apertura Remota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>¿Está seguro de enviar el comando de apertura remota?</strong></p>
+                    <div class="alert-warning-custom">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Excepción registrada:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Usuario: Domingo García (D-00123)</li>
+                            <li>Espacio: <span id="modalAula"></span></li>
+                            <li>Motivo: <span id="modalMotivo"></span></li>
+                            <li>Modalidad: Asistencia Manual (CU-04)</li>
+                        </ul>
+                    </div>
+                    <p class="mt-2"><small>La cerradura se desbloqueará inmediatamente y el registro de excepción quedará almacenado en el servidor.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-apertura btn-action" id="confirmApertura">Confirmar Apertura</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para funcionalidad -->
+    <script>
+        // Función para activar tab
+        function activarTab(tabId) {
+            const tabLink = document.querySelector(`a[data-bs-toggle="tab"][href="#${tabId}"]`);
+            if (tabLink) {
+                const tab = new bootstrap.Tab(tabLink);
+                tab.show();
+            }
+        }
+
+        // Buscar usuario
+        document.getElementById('formBuscarUsuario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const usuario = document.getElementById('usuarioBusqueda').value;
+            if (usuario.length > 2) {
+                document.getElementById('resultadoBusqueda').style.display = 'block';
+            }
+        });
+
+        // Verificar identidad
+        function verificarIdentidad() {
+            const cardVerificacion = document.getElementById('cardVerificacion');
+            const usuarioVerificado = document.getElementById('usuarioVerificado');
+            
+            // Cambiar estado del card
+            cardVerificacion.classList.add('success');
+            cardVerificacion.innerHTML = `
+                <i class="bi bi-person-check"></i>
+                <h6>Identidad verificada ✓</h6>
+                <p>El personal de SSGG confirmó la identidad del usuario.</p>
+            `;
+            
+            // Mostrar usuario verificado
+            usuarioVerificado.classList.add('displayed');
+            
+            // Habilitar botón de apertura
+            setTimeout(() => {
+                document.getElementById('btnApertura').disabled = false;
+            }, 500);
+        }
+
+        // Enviar apertura remota
+        function enviarApertura() {
+            const pabellon = document.getElementById('pabellonApertura').value;
+            const aula = document.getElementById('aulaApertura').value;
+            const motivo = document.getElementById('motivoExcepcion').value;
+            
+            if (!pabellon || !aula || !motivo) {
+                alert('⚠️ Por favor, complete todos los campos requeridos.');
+                return;
+            }
+            
+            // Actualizar modal
+            document.getElementById('modalAula').textContent = aula;
+            document.getElementById('modalMotivo').textContent = motivo;
+            
+            // Mostrar modal de confirmación
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+
+        // Confirmar apertura
+        document.getElementById('confirmApertura').addEventListener('click', function() {
+            // Cerrar modal
+            const modalEl = document.getElementById('confirmModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+            
+            // Cambiar estado de la cerradura
+            const lockIcon = document.getElementById('lockIcon');
+            const lockTitle = document.getElementById('lockTitle');
+            const lockText = document.getElementById('lockText');
+            
+            lockIcon.classList.remove('lock-locked');
+            lockIcon.classList.add('lock-unlocked');
+            lockIcon.innerHTML = '<i class="bi bi-unlock"></i>';
+            lockTitle.textContent = 'Abierta';
+            lockText.textContent = 'Cerradura desbloqueada exitosamente';
+            
+            // Mostrar resultado
+            const aula = document.getElementById('aulaApertura').value;
+            const ahora = new Date();
+            const hora = ahora.getHours() + ':' + String(ahora.getMinutes()).padStart(2, '0');
+            
+            document.getElementById('aulaAperturaTexto').textContent = aula;
+            document.getElementById('horaApertura').textContent = hora;
+            document.getElementById('resultadoApertura').style.display = 'block';
+            
+            // Scroll al resultado
+            document.getElementById('resultadoApertura').scrollIntoView({ behavior: 'smooth' });
+            
+            console.log('✅ Apertura remota exitosa - Registro de excepción almacenado (CU-04)');
+        });
+
+        // Cancelar apertura
+        function cancelarApertura() {
+            if (confirm('¿Está seguro de cancelar la apertura?')) {
+                document.getElementById('formAperturaRemota').reset();
+                document.getElementById('btnApertura').disabled = true;
+                document.getElementById('resultadoApertura').style.display = 'none';
+                
+                // Resetear cerradura
+                const lockIcon = document.getElementById('lockIcon');
+                const lockTitle = document.getElementById('lockTitle');
+                const lockText = document.getElementById('lockText');
+                
+                lockIcon.classList.remove('lock-unlocked');
+                lockIcon.classList.add('lock-locked');
+                lockIcon.innerHTML = '<i class="bi bi-lock"></i>';
+                lockTitle.textContent = 'Cerrada';
+                lockText.textContent = 'Esperando comando de apertura...';
+            }
+        }
+
+        // Inicializar
+        console.log('Módulo de Asistencia Manual y Apertura Remota cargado correctamente');
+    </script>
+</body>
+</html>

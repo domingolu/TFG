@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios y Credenciales</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            min-height: 100vh;
+        }
+        .header-panel {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .header-panel h1 {
+            font-weight: 600;
+            margin: 0;
+        }
+        .header-panel .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .card-header-custom i {
+            margin-right: 8px;
+        }
+        .btn-action {
+            padding: 8px 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            margin-right: 5px;
+        }
+        .btn-alta {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+        }
+        .btn-alta:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-modificar {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            border: none;
+            color: #333;
+        }
+        .btn-baja {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .nfc-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .nfc-card i {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .nfc-card h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .nfc-card p {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+        .nfc-input {
+            position: relative;
+        }
+        .nfc-input .btn-read {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .user-table {
+            width: 100%;
+            margin: 0;
+        }
+        .user-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #444;
+            padding: 12px 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        .user-table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .user-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .role-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-admin {
+            background: #667eea;
+            color: white;
+        }
+        .role-docente {
+            background: #28a745;
+            color: white;
+        }
+        .role-ssgg {
+            background: #ffc107;
+            color: #333;
+        }
+        .role-alumno {
+            background: #17a2b8;
+            color: white;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        .alert-warning-custom {
+            background: #fffef8;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-warning-custom i {
+            color: #ffc107;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .alert-success-custom {
+            background: #f8fff9;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-success-custom i {
+            color: #28a745;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .modal-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-header-custom .btn-close {
+            filter: invert(1);
+        }
+        .timeline-item {
+            padding-left: 20px;
+            border-left: 2px solid #667eea;
+            padding: 10px 0 10px 20px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        .stats-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-box h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .stats-box p {
+            color: #666;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+        .text-admin { color: #667eea; }
+        .text-docente { color: #28a745; }
+        .text-ssgg { color: #ffc107; }
+        .text-alumno { color: #17a2b8; }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        .time-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .nav-tabs-custom .nav-link {
+            color: #444;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header del Panel -->
+    <div class="header-panel">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-people-fill"></i> Gestión de Usuarios y Credenciales</h1>
+                    <div class="subtitle">UC-05: Gestionar usuarios y permisos - Control de Accesos y Presentismo</div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-download"></i> Exportar Padrón
+                    </button>
+                    <button class="btn btn-light btn-sm ms-2">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-admin">156</h3>
+                    <p>Total Usuarios</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-docente">48</h3>
+                    <p>Docentes</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-ssgg">24</h3>
+                    <p>Personal SSGG</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-alumno">84</h3>
+                    <p>Alumnos</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-success">142</h3>
+                    <p>Activos</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-box">
+                    <h3 class="text-danger">14</h3>
+                    <p>Inactivos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegación -->
+        <ul class="nav nav-tabs nav-tabs-custom mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#listado">
+                    <i class="bi bi-list-ul"></i> Listado de Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#alta">
+                    <i class="bi bi-person-plus-fill"></i> Alta de Usuario
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#nfc">
+                    <i class="bi bi-nfc"></i> Vincular NFC
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#permisos">
+                    <i class="bi bi-key-fill"></i> Asignar Permisos
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab: Listado de Usuarios -->
+            <div class="tab-pane fade show active" id="listado">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-table"></i> Padrón de Personal
+                    </div>
+                    <div class="card-body">
+                        <!-- Filtros -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Buscar por nombre o legajo...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los roles</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="docente">Docente</option>
+                                    <option value="ssgg">Servicios Generales</option>
+                                    <option value="alumno">Alumno</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los estados</option>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-alta btn-action">
+                                    <i class="bi bi-plus-circle"></i> Nuevo Usuario
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Usuarios -->
+                        <div class="table-responsive">
+                            <table class="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Legajo</th>
+                                        <th>Nombre y Apellido</th>
+                                        <th>Rol</th>
+                                        <th>NFC Vinculado</th>
+                                        <th>Estado</th>
+                                        <th>Último Acceso</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>D-00123</strong></td>
+                                        <td>
+                                            <i class="bi bi-person-fill text-admin"></i>
+                                            Domingo García
+                                        </td>
+                                        <td><span class="role-badge role-admin">Administrador</span></td>
+                                        <td><i class="bi bi-nfc text-primary"></i> A1B2C3D4</td>
+                                        <td><span class="status-active"><i class="bi bi-check-circle"></i> Activo</span></td>
+                                        <td>Hoy, 13:45 PM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-modificar btn-action" title="Modificar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-baja btn-action" title="Baja">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>D-00456</strong></td>
+                                        <td>
+                                            <i class="bi bi-person-fill text-docente"></i>
+                                            María Rodríguez
+                                        </td>
+                                        <td><span class="role-badge role-docente">Docente</span></td>
+                                        <td><i class="bi bi-nfc text-primary"></i> E5F6G7H8</td>
+                                        <td><span class="status-active"><i class="bi bi-check-circle"></i> Activo</span></td>
+                                        <td>Hoy, 08:30 AM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-modificar btn-action">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-baja btn-action">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>S-00089</strong></td>
+                                        <td>
+                                            <i class="bi bi-person-fill text-ssgg"></i>
+                                            Carlos Fernández
+                                        </td>
+                                        <td><span class="role-badge role-ssgg">SSGG</span></td>
+                                        <td><i class="bi bi-nfc text-primary"></i> I9J0K1L2</td>
+                                        <td><span class="status-active"><i class="bi bi-check-circle"></i> Activo</span></td>
+                                        <td>Ayer, 17:20 PM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-modificar btn-action">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-baja btn-action">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>A-00234</strong></td>
+                                        <td>
+                                            <i class="bi bi-person-fill text-alumno"></i>
+                                            Ana López
+                                        </td>
+                                        <td><span class="role-badge role-alumno">Alumno</span></td>
+                                        <td><i class="bi bi-nfc text-primary"></i> M3N4O5P6</td>
+                                        <td><span class="status-active"><i class="bi bi-check-circle"></i> Activo</span></td>
+                                        <td>Hoy, 10:15 AM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-modificar btn-action">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-baja btn-action">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>D-00789</strong></td>
+                                        <td>
+                                            <i class="bi bi-person-fill text-docente"></i>
+                                            Roberto Martínez
+                                        </td>
+                                        <td><span class="role-badge role-docente">Docente</span></td>
+                                        <td><i class="bi bi-x-circle text-danger"></i> No vinculado</td>
+                                        <td><span class="status-inactive"><i class="bi bi-x-circle"></i> Inactivo</span></td>
+                                        <td>15/05/2026, 14:30 PM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-modificar btn-action">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-baja btn-action">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Alta de Usuario -->
+            <div class="tab-pane fade" id="alta">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-person-plus-fill"></i> Alta de Nuevo Usuario
+                    </div>
+                    <div class="card-body">
+                        <form id="formAltaUsuario">
+                            <div class="row">
+                                <!-- Datos Personales -->
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-person"></i> Datos Personales</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Legajo / ID *</label>
+                                        <input type="text" class="form-control" placeholder="Ej: D-00123" required>
+                                        <small class="text-muted">Único e identificador principal</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-control" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" placeholder="+54 9 351 XXX-XXXX">
+                                    </div>
+                                </div>
+                                
+                                <!-- Datos Institucionales -->
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-building"></i> Datos Institucionales</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Rol Institucional *</label>
+                                        <select class="form-select" required id="rolUsuario">
+                                            <option value="">Seleccione un rol...</option>
+                                            <option value="admin">Administrador</option>
+                                            <option value="docente">Docente</option>
+                                            <option value="ssgg">Personal de Servicios Generales (SSGG)</option>
+                                            <option value="alumno">Alumno</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Departamento / Área *</label>
+                                        <select class="form-select" required>
+                                            <option value="">Seleccione departamento...</option>
+                                            <option value="informatica">Informática</option>
+                                            <option value="matematica">Matemática</option>
+                                            <option value="fisica">Física</option>
+                                            <option value="quimica">Química</option>
+                                            <option value="administracion">Administración</option>
+                                            <option value="ssgg">Servicios Generales</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Legajo Parentesco (Opcional)</label>
+                                        <input type="text" class="form-control" placeholder="Para relaciones familiares">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha de Ingreso *</label>
+                                        <input type="date" class="form-control" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Estado *</label>
+                                        <select class="form-select" required>
+                                            <option value="activo">Activo</option>
+                                            <option value="inactivo">Inactivo</option>
+                                            <option value="suspendido">Suspendido</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <!-- Botones de Acción -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </button>
+                                <button type="reset" class="btn btn-warning">
+                                    <i class="bi bi-arrow-clockwise"></i> Limpiar
+                                </button>
+                                <button type="submit" class="btn btn-alta btn-action">
+                                    <i class="bi bi-check-circle"></i> Guardar Usuario
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Vincular NFC -->
+            <div class="tab-pane fade" id="nfc">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card-custom">
+                            <div class="card-header-custom">
+                                <i class="bi bi-nfc"></i> Vincular Tarjeta/Tag NFC con Usuario
+                            </div>
+                            <div class="card-body">
+                                <form id="formVincularNFC">
+                                    <div class="mb-3">
+                                        <label class="form-label">Buscar Usuario por Legajo o Nombre *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Ingrese legajo o nombre..." required>
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="bi bi-search"></i> Buscar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Resultado de búsqueda -->
+                                    <div class="alert alert-success-custom" id="usuarioEncontrado" style="display: none;">
+                                        <i class="bi bi-check-circle"></i>
+                                        <div>
+                                            <strong>Usuario encontrado:</strong> Domingo García (D-00123)
+                                            <br><small>Rol: Administrador | Estado: Activo</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="nfc-card">
+                                        <i class="bi bi-nfc"></i>
+                                        <h6>📱 Leer ID NFC</h6>
+                                        <p>Acercá la tarjeta o tag NFC al lector para leer su ID único</p>
+                                        <div class="nfc-input mt-3">
+                                            <input type="text" class="form-control form-control-lg" id="nfcId" placeholder="ID NFC (será leído automáticamente)" readonly>
+                                            <button class="btn btn-primary btn-read" type="button" onclick="leerNFC()">
+                                                <i class="bi bi-upc-scan"></i> Leer NFC
+                                            </button>
+                                        </div>
+                                        <small class="text-muted mt-2 d-block">
+                                            <i class="bi bi-info-circle"></i> El ID NFC es único por dispositivo y no se puede reutilizar
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Validación de NFC duplicado -->
+                                    <div class="alert-warning-custom" id="nfcDuplicado" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <strong>Alerta:</strong> Este ID NFC ya está asignado a otro usuario (María Rodríguez - D-00456). 
+                                        Por favor, utilizá una tarjeta diferente o desvinculá primero del usuario actual.
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-end gap-2 mt-4">
+                                        <button type="button" class="btn btn-secondary">
+                                            <i class="bi bi-x-circle"></i> Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-link-45deg"></i> Vincular NFC
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card-custom">
+                            <div class="card-header-custom">
+                                <i class="bi bi-info-circle"></i> Información NFC
+                            </div>
+                            <div class="card-body">
+                                <h6>📋 Pasos para vincular:</h6>
+                                <div class="timeline-item">
+                                    <small class="text-muted">Paso 1</small>
+                                    <p class="mb-0">Buscá el usuario por legajo o nombre</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <small class="text-muted">Paso 2</small>
+                                    <p class="mb-0">Acercá la tarjeta NFC al lector</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <small class="text-muted">Paso 3</small>
+                                    <p class="mb-0">El sistema lee el ID automáticamente</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <small class="text-muted">Paso 4</small>
+                                    <p class="mb-0">Verificá que no esté duplicado</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <small class="text-muted">Paso 5</small>
+                                    <p class="mb-0">Presioná "Vincular NFC"</p>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6>⚠️ Validaciones:</h6>
+                                <ul class="small">
+                                    <li>ID NFC único por dispositivo</li>
+                                    <li>No se puede reutilizar</li>
+                                    <li>Usuario debe estar activo</li>
+                                    <li>Se actualiza en tiempo real en todos los nodos</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Asignar Permisos -->
+            <div class="tab-pane fade" id="permisos">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-key-fill"></i> Asignar Permisos de Acceso y Cronogramas
+                    </div>
+                    <div class="card-body">
+                        <form id="formPermisos">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">1. Seleccionar Usuario</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Usuario *</label>
+                                        <select class="form-select" required>
+                                            <option value="">Seleccione usuario...</option>
+                                            <option value="D-00123">Domingo García (D-00123) - Administrador</option>
+                                            <option value="D-00456">María Rodríguez (D-00456) - Docente</option>
+                                            <option value="S-00089">Carlos Fernández (S-00089) - SSGG</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">2. Seleccionar Pabellón</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Pabellón *</label>
+                                        <select class="form-select" required id="pabellon">
+                                            <option value="">Seleccione pabellón...</option>
+                                            <option value="A">Pabellón A</option>
+                                            <option value="B">Pabellón B</option>
+                                            <option value="C">Pabellón C</option>
+                                            <option value="D">Pabellón D</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3">3. Aulas/Espacios Habilitados</h6>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="A-101">
+                                            <span>Aula A-101</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="A-102">
+                                            <span>Aula A-102</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="A-201">
+                                            <span>Aula A-201</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="B-101">
+                                            <span>Aula B-101</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="B-201">
+                                            <span>Aula B-201</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="C-101">
+                                            <span>Aula C-101</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="D-101">
+                                            <span>Aula D-101</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="OFICINA-ADMIN">
+                                            <span>Oficina Administrativa</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="aulas" value="LABORATORIO-1">
+                                            <span>Laboratorio 1</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3">4. Cronograma de Horarios de Acceso</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Días de la semana *</label>
+                                        <div class="checkbox-group">
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="lunes">
+                                                <span>Lunes</span>
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="martes">
+                                                <span>Martes</span>
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="miercoles">
+                                                <span>Miércoles</span>
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="jueves">
+                                                <span>Jueves</span>
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="viernes">
+                                                <span>Viernes</span>
+                                            </label>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="dias" value="sabado">
+                                                <span>Sábado</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Horario de Inicio *</label>
+                                                <div class="time-range">
+                                                    <input type="time" class="form-control" required>
+                                                    <span class="text-muted">HH:MM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Horario de Fin *</label>
+                                                <div class="time-range">
+                                                    <input type="time" class="form-control" required>
+                                                    <span class="text-muted">HH:MM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Alerta de conflicto de horarios -->
+                                    <div class="alert-warning-custom" id="conflictoHorario" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <strong>Conflicto de asignación:</strong> El aula A-102 ya tiene un permiso asignado para este horario (Lunes a Viernes 08:00-12:00). 
+                                        Por favor, revisá el cronograma o seleccioná otro espacio.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="alert alert-success-custom">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Principio de mínimo privilegio:</strong> Se otorgarán solo los permisos necesarios para el rol del usuario.
+                            </div>
+                            
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </button>
+                                <button type="button" class="btn btn-warning">
+                                    <i class="bi bi-search"></i> Validar Conflictos
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Guardar Permisos
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea realizar esta acción? Los cambios se actualizarán en tiempo real en todos los nodos NFC.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmAction">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para funcionalidad -->
+    <script>
+        // Simular lectura de NFC
+        function leerNFC() {
+            const nfcInput = document.getElementById('nfcId');
+            const nfcDuplicado = document.getElementById('nfcDuplicado');
+            
+            // Simular lectura aleatoria
+            const nfcId = 'A' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            nfcInput.value = nfcId;
+            
+            // Simular validación de duplicado (50% de probabilidad)
+            if (Math.random() > 0.5) {
+                nfcDuplicado.style.display = 'block';
+                nfcInput.classList.add('is-invalid');
+            } else {
+                nfcDuplicado.style.display = 'none';
+                nfcInput.classList.remove('is-invalid');
+            }
+        }
+
+        // Mostrar usuario encontrado
+        document.querySelector('#formVincularNFC input[type="text"]').addEventListener('input', function() {
+            if (this.value.length > 3) {
+                document.getElementById('usuarioEncontrado').style.display = 'block';
+            }
+        });
+
+        // Manejo de formularios
+        document.getElementById('formAltaUsuario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Usuario guardado exitosamente. La base de datos central se actualizó.');
+        });
+
+        document.getElementById('formVincularNFC').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ NFC vinculado exitosamente. Los nodos de acceso reconocen los nuevos permisos de forma inmediata.');
+        });
+
+        document.getElementById('formPermisos').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Permisos guardados exitosamente. Se aplicó el principio de mínimo privilegio.');
+        });
+
+        // Simular conflicto de horario al seleccionar pabellón
+        document.getElementById('pabellon').addEventListener('change', function() {
+            if (this.value === 'A') {
+                document.getElementById('conflictoHorario').style.display = 'block';
+            } else {
+                document.getElementById('conflictoHorario').style.display = 'none';
+            }
+        });
+
+        // Inicializar
+        console.log('Módulo de Gestión de Usuarios cargado correctamente');
+    </script>
+</body>
+</html>

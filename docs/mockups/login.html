@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantalla de Acceso (Login)</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h2 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-login:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .role-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+        .role-info h5 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .role-info ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #555;
+        }
+        .alert-validation {
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Header -->
+        <div class="login-header">
+            <h2>🔐 Acceso al Sistema</h2>
+            <p>Punto de entrada para Administrador y Personal de Servicios Generales (SSGG)</p>
+        </div>
+
+        <!-- Formulario de Login -->
+        <form id="loginForm" novalidate>
+            <!-- Campo de Usuario -->
+            <div class="mb-3">
+                <label for="usuario" class="form-label">Usuario</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="usuario" 
+                    name="usuario"
+                    placeholder="Ingrese su nombre de usuario"
+                    required
+                    aria-required="true"
+                >
+                <div class="invalid-feedback">
+                    Por favor, ingrese su nombre de usuario.
+                </div>
+            </div>
+
+            <!-- Campo de Contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password"
+                    placeholder="Ingrese su contraseña"
+                    required
+                    aria-required="true"
+                    minlength="6"
+                >
+                <div class="invalid-feedback">
+                    Por favor, ingrese su contraseña (mínimo 6 caracteres).
+                </div>
+            </div>
+
+            <!-- Botón de Acceso -->
+            <button type="submit" class="btn btn-primary btn-login">
+                Ingresar al Sistema
+            </button>
+
+            <!-- Mensaje de Validación -->
+            <div id="validationMessage" class="alert alert-validation" style="display: none;"></div>
+
+            <!-- Información de Roles y Mínimo Privilegio -->
+            <div class="role-info">
+                <h5>📋 Perfiles de Acceso - Principio de Mínimo Privilegio</h5>
+                <ul>
+                    <li><strong>Administrador:</strong> Acceso completo al sistema con permisos de gestión</li>
+                    <li><strong>Personal SSGG:</strong> Acceso limitado a funciones de Servicios Generales</li>
+                </ul>
+                <p class="mt-2" style="color: #666; font-size: 12px;">
+                    ℹ️ Se aplicará el principio de mínimo privilegio según el perfil validado.
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Lógica de Validación de Perfiles -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const usuario = document.getElementById('usuario').value.trim();
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('validationMessage');
+            
+            // Validación básica
+            if (!usuario || !password) {
+                messageDiv.className = 'alert alert-danger alert-validation';
+                messageDiv.innerHTML = '⚠️ Por favor, complete todos los campos.';
+                messageDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                messageDiv.className = 'alert alert-danger alert-validation';
+                messageDiv.innerHTML = '⚠️ La contraseña debe tener al menos 6 caracteres.';
+                messageDiv.style.display = 'block';
+                return;
+            }
+            
+            // Simulación de validación de perfiles
+            let perfil = '';
+            let mensaje = '';
+            let clase = '';
+            
+            if (usuario.toLowerCase().includes('admin') || usuario.toLowerCase() === 'administrador') {
+                perfil = 'Administrador';
+                mensaje = '✅ Acceso validado como <strong>Administrador</strong>. Permisos completos aplicados.';
+                clase = 'alert-success';
+            } else if (usuario.toLowerCase().includes('ssgg') || usuario.toLowerCase().includes('servicios')) {
+                perfil = 'Personal de Servicios Generales (SSGG)';
+                mensaje = '✅ Acceso validado como <strong>Personal SSGG</strong>. Permisos limitados aplicados.';
+                clase = 'alert-info';
+            } else {
+                messageDiv.className = 'alert alert-danger alert-validation';
+                mensaje = '⚠️ Usuario no reconocido. Por favor, verifique sus credenciales.';
+                clase = 'alert-danger';
+                messageDiv.innerHTML = mensaje;
+                messageDiv.style.display = 'block';
+                return;
+            }
+            
+            // Aplicar principio de mínimo privilegio
+            messageDiv.className = `alert ${clase} alert-validation`;
+            mensaje += '<br><br><small><strong>Principio de mínimo privilegio aplicado:</strong> Se otorgaron solo los permisos necesarios para ' + perfil + '.';
+            messageDiv.innerHTML = mensaje;
+            messageDiv.style.display = 'block';
+            
+            // Simular redirección (en producción, esto se conectaría al backend)
+            console.log('Perfil validado:', perfil);
+            console.log('Permisos aplicados:', perfil === 'Administrador' ? 'completos' : 'limitados');
+        });
+
+        // Validación en tiempo real
+        document.getElementById('usuario').addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        document.getElementById('password').addEventListener('blur', function() {
+            if (!this.value || this.value.length < 6) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Cronogramas y Permisos</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            min-height: 100vh;
+        }
+        .header-panel {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .header-panel h1 {
+            font-weight: 600;
+            margin: 0;
+        }
+        .header-panel .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .card-header-custom i {
+            margin-right: 8px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .grilla-horaria {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .grilla-horaria th,
+        .grilla-horaria td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .grilla-horaria th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #444;
+        }
+        .grilla-horaria .hora-col {
+            background: #e9ecef;
+            font-weight: 600;
+            width: 80px;
+        }
+        .grilla-horaria .dia-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 50px;
+        }
+        .grilla-horaria .dia-cell:hover {
+            background: #e3e6ea;
+        }
+        .grilla-horaria .permitido {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            font-weight: 600;
+        }
+        .grilla-horaria .no-permitido {
+            background: #f8f9fa;
+            color: #999;
+        }
+        .grilla-horaria .conflicto {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #333;
+            font-weight: 600;
+            animation: pulse-conflict 2s infinite;
+        }
+        @keyframes pulse-conflict {
+            0%, 100% { box-shadow: inset 0 0 0 0 rgba(255, 193, 7, 0.3); }
+            50% { box-shadow: inset 0 0 10px 0 rgba(255, 193, 7, 0.6); }
+        }
+        .btn-action {
+            padding: 8px 16px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+        .btn-crear {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+        }
+        .btn-editar {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            border: none;
+            color: #333;
+        }
+        .btn-eliminar {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+        }
+        .alert-warning-custom {
+            background: #fffef8;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-warning-custom i {
+            color: #ffc107;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .alert-success-custom {
+            background: #f8fff9;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .alert-success-custom i {
+            color: #28a745;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+        .checkbox-item input:checked + span {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .time-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .permiso-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .permiso-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .permiso-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #e8ecff 0%, #f0f3ff 100%);
+        }
+        .permiso-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .permiso-titulo {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .permiso-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-activo {
+            background: #28a745;
+            color: white;
+        }
+        .badge-inactivo {
+            background: #6c757d;
+            color: white;
+        }
+        .permiso-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+        .permiso-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .permiso-info-item i {
+            color: #667eea;
+        }
+        .stats-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-box h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .stats-box p {
+            color: #666;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+        .text-primary { color: #667eea; }
+        .text-success { color: #28a745; }
+        .text-warning { color: #ffc107; }
+        .text-danger { color: #dc3545; }
+        .modal-header-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-header-custom .btn-close {
+            filter: invert(1);
+        }
+        .nav-tabs-custom .nav-link {
+            color: #444;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: transparent;
+        }
+        .entity-info {
+            background: #e8ecff;
+            border: 1px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .entity-info h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .entity-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+        .entity-field .campo {
+            font-weight: 600;
+            color: #444;
+        }
+        .entity-field .tipo {
+            color: #666;
+        }
+        .entity-field .pk {
+            color: #28a745;
+            font-size: 11px;
+        }
+        .entity-field .fk {
+            color: #667eea;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header del Panel -->
+    <div class="header-panel">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-calendar-week"></i> Administración de Cronogramas y Permisos</h1>
+                    <div class="subtitle">Basado en entidad Permiso + RF2: Validación de permisos antes de autorizar ingreso</div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-download"></i> Exportar
+                    </button>
+                    <button class="btn btn-light btn-sm ms-2">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-primary">156</h3>
+                    <p>Permisos Totales</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-success">142</h3>
+                    <p>Permisos Activos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-warning">8</h3>
+                    <p>Con Conflictos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h3 class="text-danger">6</h3>
+                    <p>Inactivos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegación -->
+        <ul class="nav nav-tabs nav-tabs-custom mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#lista-permisos">
+                    <i class="bi bi-list-ul"></i> Listado de Permisos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#crear-permisos">
+                    <i class="bi bi-plus-circle-fill"></i> Crear Permiso
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#grilla-horaria">
+                    <i class="bi bi-calendar3"></i> Grilla Horaria Semestral
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#validacion">
+                    <i class="bi bi-shield-check"></i> Validar Conflictos
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab: Listado de Permisos -->
+            <div class="tab-pane fade show active" id="lista-permisos">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-table"></i> Permisos Vigentes por Aula
+                    </div>
+                    <div class="card-body">
+                        <!-- Filtros -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Buscar por usuario o aula...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todas las aulas</option>
+                                    <option value="A-101">Aula A-101</option>
+                                    <option value="A-102">Aula A-102</option>
+                                    <option value="B-101">Aula B-101</option>
+                                    <option value="C-101">Aula C-101</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">Todos los estados</option>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-crear btn-action" onclick="activarTab('crear-permisos')">
+                                    <i class="bi bi-plus-circle"></i> Nuevo Permiso
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tarjetas de Permisos -->
+                        <div class="permiso-card active" onclick="seleccionarPermiso('1')">
+                            <div class="permiso-header">
+                                <div class="permiso-titulo">
+                                    <i class="bi bi-person-fill"></i> Domingo García → Aula A-102
+                                </div>
+                                <span class="permiso-badge badge-activo">Activo</span>
+                            </div>
+                            <div class="permiso-info">
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Días: Lunes, Martes, Miércoles, Jueves, Viernes</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Horario: 08:00 - 18:00</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Legajo: D-00123 (Administrador)</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-building"></i>
+                                    <span>Espacio: Aula A-102 (40 personas)</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-editar btn-action">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-eliminar btn-action">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="permiso-card">
+                            <div class="permiso-header">
+                                <div class="permiso-titulo">
+                                    <i class="bi bi-person-fill"></i> María Rodríguez → Aula A-101
+                                </div>
+                                <span class="permiso-badge badge-activo">Activo</span>
+                            </div>
+                            <div class="permiso-info">
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Días: Lunes a Viernes</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Horario: 08:00 - 12:00</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Legajo: D-00456 (Docente)</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-building"></i>
+                                    <span>Espacio: Aula A-101 (40 personas)</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-editar btn-action">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-eliminar btn-action">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="permiso-card">
+                            <div class="permiso-header">
+                                <div class="permiso-titulo">
+                                    <i class="bi bi-person-fill"></i> Carlos Fernández → Oficina Administrativa
+                                </div>
+                                <span class="permiso-badge badge-activo">Activo</span>
+                            </div>
+                            <div class="permiso-info">
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Días: Lunes a Viernes</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Horario: 09:00 - 17:00</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Legajo: S-00089 (SSGG)</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-building"></i>
+                                    <span>Espacio: Oficina Admin</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-editar btn-action">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-eliminar btn-action">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="permiso-card">
+                            <div class="permiso-header">
+                                <div class="permiso-titulo">
+                                    <i class="bi bi-person-fill"></i> Ana López → Laboratorio 1
+                                </div>
+                                <span class="permiso-badge badge-inactivo">Inactivo</span>
+                            </div>
+                            <div class="permiso-info">
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Días: Martes y Jueves</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Horario: 14:00 - 18:00</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Legajo: A-00234 (Alumno)</span>
+                                </div>
+                                <div class="permiso-info-item">
+                                    <i class="bi bi-building"></i>
+                                    <span>Espacio: Laboratorio 1</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-editar btn-action">
+                                    <i class="bi bi-pencil"></i> Reactivar
+                                </button>
+                                <button class="btn btn-sm btn-eliminar btn-action">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Crear Permiso -->
+            <div class="tab-pane fade" id="crear-permisos">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-plus-circle-fill"></i> Crear Nuevo Permiso
+                    </div>
+                    <div class="card-body">
+                        <form id="formCrearPermiso">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-person"></i> 1. Seleccionar Usuario</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Persona *</label>
+                                        <select class="form-select" required id="usuarioPermiso">
+                                            <option value="">Seleccione usuario...</option>
+                                            <option value="D-00123">Domingo García (D-00123) - Administrador</option>
+                                            <option value="D-00456">María Rodríguez (D-00456) - Docente</option>
+                                            <option value="S-00089">Carlos Fernández (S-00089) - SSGG</option>
+                                            <option value="A-00234">Ana López (A-00234) - Alumno</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6 class="mb-3"><i class="bi bi-building"></i> 2. Seleccionar Espacio</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Espacio/Aula *</label>
+                                        <select class="form-select" required id="espacioPermiso">
+                                            <option value="">Seleccione espacio...</option>
+                                            <option value="A-101">Aula A-101 (40 personas) - Pabellón A</option>
+                                            <option value="A-102">Aula A-102 (35 personas) - Pabellón A</option>
+                                            <option value="A-201">Aula A-201 (50 personas) - Pabellón A</option>
+                                            <option value="B-101">Aula B-101 (45 personas) - Pabellón B</option>
+                                            <option value="B-201">Aula B-201 (38 personas) - Pabellón B</option>
+                                            <option value="C-101">Aula C-101 (42 personas) - Pabellón C</option>
+                                            <option value="D-101">Aula D-101 (45 personas) - Pabellón D</option>
+                                            <option value="OFICINA-ADMIN">Oficina Administrativa</option>
+                                            <option value="LABORATORIO-1">Laboratorio 1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3"><i class="bi bi-calendar3"></i> 3. Días Permitidos</h6>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="lunes" id="dia-lunes">
+                                            <span>Lunes</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="martes" id="dia-martes">
+                                            <span>Martes</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="miercoles" id="dia-miercoles">
+                                            <span>Miércoles</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="jueves" id="dia-jueves">
+                                            <span>Jueves</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="viernes" id="dia-viernes">
+                                            <span>Viernes</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="sabado" id="dia-sabado">
+                                            <span>Sábado</span>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" name="dias" value="domingo" id="dia-domingo">
+                                            <span>Domingo</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="seleccionarTodosDias()">
+                                            <i class="bi bi-check-all"></i> Seleccionar todos
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="desseleccionarTodosDias()">
+                                            <i class="bi bi-check-slash"></i> Desseleccionar todos
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3"><i class="bi bi-clock"></i> 4. Rangos Horarios</h6>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Horario de Inicio *</label>
+                                                <div class="time-range">
+                                                    <input type="time" class="form-control" id="horaInicio" required>
+                                                    <span class="text-muted">HH:MM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Horario de Fin *</label>
+                                                <div class="time-range">
+                                                    <input type="time" class="form-control" id="horaFin" required>
+                                                    <span class="text-muted">HH:MM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Alerta de conflicto de horarios (RF2) -->
+                                    <div class="alert-warning-custom" id="conflictoRango" style="display: none;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <strong>Conflicto detectado (RF2):</strong> El aula <strong id="conflictoAula">A-102</strong> ya tiene un permiso asignado para este rango horario 
+                                        (<strong id="conflictoHorario">Lunes a Viernes 08:00-18:00</strong>) por 
+                                        <strong id="conflictoUsuario">Domingo García</strong>. 
+                                        El servidor central no autorizará el ingreso si hay solapamiento. Por favor, revisá el cronograma.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3"><i class="bi bi-toggle-on"></i> 5. Estado del Permiso</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Activo *</label>
+                                        <select class="form-select" required id="estadoPermiso">
+                                            <option value="true">Activo (permiso vigente)</option>
+                                            <option value="false">Inactivo (permiso suspendido)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert-success-custom">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Validación RF2:</strong> Antes de guardar, el sistema contrastará la identidad con la base de datos de permisos y cronogramas vigentes para autorizar/desautorizar el ingreso.
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <button type="button" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </button>
+                                <button type="button" class="btn btn-warning" onclick="validarConflicto()">
+                                    <i class="bi bi-shield-check"></i> Validar Conflictos
+                                </button>
+                                <button type="submit" class="btn btn-crear btn-action">
+                                    <i class="bi bi-check-circle"></i> Guardar Permiso
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Grilla Horaria Semestral -->
+            <div class="tab-pane fade" id="grilla-horaria">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-calendar3"></i> Grilla Horaria Semestral por Aula - Pabellón A
+                    </div>
+                    <div class="card-body">
+                        <!-- Selector de Aula -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Seleccionar Aula</label>
+                                <select class="form-select" id="selectorAulaGrilla">
+                                    <option value="A-101">Aula A-101</option>
+                                    <option value="A-102" selected>Aula A-102</option>
+                                    <option value="A-201">Aula A-201</option>
+                                    <option value="B-101">Aula B-101</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Semestre</label>
+                                <select class="form-select">
+                                    <option value="2026-1">Semestre 1 - 2026</option>
+                                    <option value="2026-2">Semestre 2 - 2026</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Grilla Horaria -->
+                        <div class="table-responsive">
+                            <table class="grilla-horaria">
+                                <thead>
+                                    <tr>
+                                        <th class="hora-col">Hora</th>
+                                        <th>Lunes</th>
+                                        <th>Martes</th>
+                                        <th>Miércoles</th>
+                                        <th>Jueves</th>
+                                        <th>Viernes</th>
+                                        <th>Sábado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="hora-col">08:00</td>
+                                        <td class="dia-cell permitido" data-dia="lunes" data-hora="08:00">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido" data-dia="martes" data-hora="08:00">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido" data-dia="miercoles" data-hora="08:00">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido" data-dia="jueves" data-hora="08:00">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido" data-dia="viernes" data-hora="08:00">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">09:00</td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong>+<br><strong>M. Rodríguez</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">10:00</td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">11:00</td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido conflicto">
+                                            <strong>⚠️ CONFLITO</strong><br><small>Sobrep. D. García</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>M. Rodríguez</strong><br><small>A-101</small>
+                                        </td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">12:00</td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell permitido">
+                                            <strong>D. García</strong><br><small>A-102</small>
+                                        </td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">13:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">14:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">15:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">16:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">17:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="hora-col">18:00</td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                        <td class="dia-cell no-permitido"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Leyenda -->
+                        <div class="mt-4">
+                            <h6>Leyenda:</h6>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 4px;"></div>
+                                    <span>Permiso vigente</span>
+                                </div>
+                                <div class="checkbox-item">
+                                    <div style="width: 30px; height: 30px; background: #f8f9fa; border-radius: 4px;"></div>
+                                    <span>Sin permiso</span>
+                                </div>
+                                <div class="checkbox-item">
+                                    <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border-radius: 4px; animation: pulse-conflict 2s infinite;"></div>
+                                    <span>⚠️ Conflicto de horarios</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Validar Conflictos -->
+            <div class="tab-pane fade" id="validacion">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <i class="bi bi-shield-check"></i> Validación de Conflictos de Horarios (RF2)
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-success-custom">
+                            <i class="bi bi-check-circle"></i>
+                            <strong>RF2 - Validación de permisos:</strong> El servidor central contrasta la identidad capturada con la base de datos de permisos y cronogramas vigentes **antes de autorizar un ingreso**.
+                        </div>
+
+                        <form id="formValidarConflictos">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Aula/Espacio</label>
+                                        <select class="form-select" id="aulaValidacion">
+                                            <option value="">Seleccione aula...</option>
+                                            <option value="A-101">Aula A-101</option>
+                                            <option value="A-102" selected>Aula A-102</option>
+                                            <option value="B-101">Aula B-101</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha a validar</label>
+                                        <input type="date" class="form-control" value="2026-06-15">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Rango horario</label>
+                                <div class="time-range">
+                                    <input type="time" class="form-control" value="08:00">
+                                    <span class="text-muted">-</span>
+                                    <input type="time" class="form-control" value="18:00">
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-warning btn-action mt-3" onclick="validarConflictosGeneral()">
+                                <i class="bi bi-shield-check"></i> Validar Conflictos
+                            </button>
+                        </form>
+
+                        <!-- Resultados de validación -->
+                        <div class="alert-warning-custom mt-4" id="resultadoValidacion" style="display: none;">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Conflictos detectados:</strong>
+                            <ul class="mt-2" style="margin-left: 30px;">
+                                <li><strong>Miércoles 11:00-12:00:</strong> Solapamiento entre Domingo García (08:00-18:00) y María Rodríguez (08:00-12:00) en Aula A-102</li>
+                                <li><strong>Viernes 09:00-10:00:</strong> Triple conflicto: 3 usuarios con permisos simultáneos</li>
+                            </ul>
+                            <p class="mt-2"><strong>Recomendación:</strong> Revisar y ajustar los cronogramas para evitar solapamientos. El servidor NO autorizará ingresos con conflictos.</p>
+                        </div>
+
+                        <div class="alert-success-custom mt-4" id="resultadoValidacionOK" style="display: none;">
+                            <i class="bi bi-check-circle"></i>
+                            <strong>No se detectaron conflictos:</strong> Todos los permisos para el aula seleccionada están correctamente asignados sin solapamientos. El servidor puede autorizar ingresos normalmente.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea guardar este permiso? El servidor central lo contrastará con la base de datos antes de autorizar ingresos.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-crear btn-action" id="confirmAction">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para funcionalidad -->
+    <script>
+        // Función para activar tab
+        function activarTab(tabId) {
+            const tabLink = document.querySelector(`a[data-bs-toggle="tab"][href="#${tabId}"]`);
+            if (tabLink) {
+                const tab = new bootstrap.Tab(tabLink);
+                tab.show();
+            }
+        }
+
+        // Seleccionar todos los días
+        function seleccionarTodosDias() {
+            document.querySelectorAll('input[name="dias"]').forEachcheckbox => checkbox.checked = true);
+        }
+
+        // Desseleccionar todos los días
+        function desseleccionarTodosDias() {
+            document.querySelectorAll('input[name="dias"]').forEachcheckbox => checkbox.checked = false);
+        }
+
+        // Validar conflicto de rango horario
+        function validarConflicto() {
+            const aula = document.getElementById('espacioPermiso').value;
+            const horaInicio = document.getElementById('horaInicio').value;
+            const horaFin = document.getElementById('horaFin').value;
+            
+            if (aula === 'A-102' && horaInicio <= '09:00' && horaFin >= '12:00') {
+                document.getElementById('conflictoRango').style.display = 'block';
+                document.getElementById('conflictoAula').textContent = aula;
+                document.getElementById('conflictoHorario').textContent = 'Lunes a Viernes 08:00-18:00';
+                document.getElementById('conflictoUsuario').textContent = 'Domingo García';
+            } else {
+                document.getElementById('conflictoRango').style.display = 'none';
+            }
+        }
+
+        // Validar conflictos general
+        function validarConflictosGeneral() {
+            document.getElementById('resultadoValidacion').style.display = 'block';
+            document.getElementById('resultadoValidacionOK').style.display = 'none';
+        }
+
+        // Manejo de formularios
+        document.getElementById('formCrearPermiso').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Permiso guardado exitosamente. El servidor central lo contrastará con la base de datos antes de autorizar ingresos (RF2).');
+        });
+
+        // Selección de células en grilla
+        document.querySelectorAll('.dia-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                if (this.classList.contains('dia-cell') && !this.classList.contains('no-permitido')) {
+                    const dia = this.getAttribute('data-dia');
+                    const hora = this.getAttribute('data-hora');
+                    alert(`Permiso en ${dia} a las ${hora}: Domingo García - Aula A-102`);
+                }
+            });
+        });
+
+        // Selección de permiso
+        function seleccionarPermiso(id) {
+            document.querySelectorAll('.permiso-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`.permiso-card:nth-child(${id + 1})`).classList.add('active');
+        }
+
+        // Inicializar
+        console.log('Módulo de Administración de Cronogramas y Permisos cargado correctamente');
+    </script>
+</body>
+</html>
